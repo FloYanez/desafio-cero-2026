@@ -35,9 +35,9 @@ Ir a [http://localhost:5000/?date=2026-01-28&type=EVALUACION](http://localhost:5
 `POST /api/appointments` agenda una cita.
 
 ## Decisiones de diseño:
-
-- Lógica de disponibilidad: itera slots de 15 min dentro del horario clínico, filtrando los que colisionan con almuerzo (13:15–14:30) u otras citas — con bordes estrictos (slot_end > otro_start, no >=), para que un slot que termina justo cuando empieza otro sea válido.
 - Guard de doble booking: antes de guardar, re-verifica disponibilidad y responde 409 si el slot ya fue tomado entre la carga y el click.
-- Frontend sin frameworks: fetch API + vanilla JS. El estado (tipo seleccionado, slot pendiente) es simple, no justificaba React u otro.
+- Frontend sin frameworks: fetch API. El estado (tipo seleccionado, slot pendiente) es simple, no justificaba React u otro.
 - Sin restricción de fecha mínima: el enunciado dice explícitamente que se pueden tomar horas para fechas pasadas.
-- Haber usado React para el frontend en lugar de Jinja2 habría permitido hacer facilmente tests de la app ya que sería una API REST pura, pero dada la escala del proyecto es mas sencillo usar Jinja2
+- Se usa un rut hardcodeado para identificar al paciente pero de momento no tiene uso. Una implementación real requeriría más información pero no necesariamente autenticación.
+- Haber usado React para el frontend en lugar de Jinja2 habría permitido hacer facilmente tests de la app ya que sería una API REST pura, pero dada la escala del proyecto es mas sencillo usar Jinja2.
+- Debido a la agilidad de trabajar con Claude Code se decidió implementar el backoffice de manera simple. De momento no requiere autenticación pero en una implementación real requeriría autenticación.
