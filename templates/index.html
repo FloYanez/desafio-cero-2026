@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block title %}Agendar Cita — Clínica Dental{% endblock %}
+
+{% block content %}
+<section class="booking-card">
+  <h2 class="booking-title">Agendar una cita</h2>
+
+  <div class="form-row">
+    <div class="form-group">
+      <label for="date-picker">Fecha</label>
+      <input type="date" id="date-picker" value="{{ today }}" />
+    </div>
+
+    <div class="form-group">
+      <label>Tipo de atención</label>
+      <div class="type-selector">
+        <button class="type-btn" data-type="EVALUACION">
+          <span class="type-name">Evaluación</span>
+          <span class="type-duration">30 minutos</span>
+        </button>
+        <button class="type-btn" data-type="TRATAMIENTO">
+          <span class="type-name">Tratamiento</span>
+          <span class="type-duration">45 minutos</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="loading" class="state-msg hidden">Cargando disponibilidad…</div>
+  <div id="no-slots" class="state-msg hidden">No hay bloques disponibles para esta fecha.</div>
+
+  <div id="slots-section" class="hidden">
+    <h3 id="slots-title" class="slots-title"></h3>
+    <div id="slots-grid" class="slots-grid"></div>
+  </div>
+</section>
+
+<!-- Modal de confirmación -->
+<div id="modal-overlay" class="modal-overlay hidden" role="dialog" aria-modal="true">
+  <div class="modal">
+    <h3 class="modal-heading">Confirmar cita</h3>
+    <dl class="modal-detail">
+      <div class="detail-row">
+        <dt>Tipo</dt>
+        <dd id="modal-type"></dd>
+      </div>
+      <div class="detail-row">
+        <dt>Fecha</dt>
+        <dd id="modal-date"></dd>
+      </div>
+      <div class="detail-row">
+        <dt>Horario</dt>
+        <dd id="modal-time"></dd>
+      </div>
+      <div class="detail-row">
+        <dt>Paciente</dt>
+        <dd>{{ patient_id }}</dd>
+      </div>
+    </dl>
+    <div class="modal-actions">
+      <button id="modal-cancel" class="btn btn-secondary">Cancelar</button>
+      <button id="modal-confirm" class="btn btn-primary">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast de notificación -->
+<div id="toast" class="toast hidden" role="status" aria-live="polite">
+  <span id="toast-message"></span>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  const TODAY = "{{ today }}";
+  const PATIENT_ID = "{{ patient_id }}";
+</script>
+<script src="{{ url_for('static', filename='app.js') }}"></script>
+{% endblock %}
