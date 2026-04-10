@@ -38,8 +38,16 @@ def format_date(iso_str):
 
 
 def load_appointments():
-    with open(DATA_FILE, encoding="utf-8") as f:
-        raw = json.load(f)
+    try:
+        with open(DATA_FILE, encoding="utf-8") as f:
+            raw = json.load(f)
+    except json.JSONDecodeError:
+        # El archivo existe pero no es JSON válido (ej: escritura interrumpida).
+        # En producción esto debería loggearse y alertar. Retornamos lista vacía
+        # para que la app siga funcionando sin mostrar disponibilidad incorrecta.
+        print(f"Advertencia: {DATA_FILE} no es JSON válido. Se asume sin citas.")
+        return []
+
     result = []
     for appt in raw:
         try:
@@ -52,6 +60,13 @@ def load_appointments():
             # interrumpir el servicio. En producción esto debería loggearse.
             print(f"Advertencia: cita con formato inválido ignorada: {appt}")
             continue
+
+        if end <= start:
+            # Intervalo negativo o nulo: la lógica de solapamiento lo ignoraría
+            # silenciosamente, produciendo disponibilidad incorrecta.
+            print(f"Advertencia: cita con end <= start ignorada: {appt}")
+            continue
+
         result.append({
             "start": start,
             "end": end,
