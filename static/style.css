@@ -302,15 +302,6 @@ select:focus {
   cursor: not-allowed;
 }
 
-.btn-secondary {
-  background: #f1f5f9;
-  color: #475569;
-}
-
-.btn-secondary:hover {
-  background: #e2e8f0;
-}
-
 /* ── Responsive ── */
 @media (max-width: 560px) {
   .form-row {
