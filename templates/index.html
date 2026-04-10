@@ -37,7 +37,7 @@
 
   {% if slots is not none %}
     {% if slots %}
-      <h3 class="slots-title">Horarios disponibles</h3>
+      <h3 class="slots-title">Horarios disponibles — {{ "Evaluación" if appt_type == "EVALUACION" else "Tratamiento" }}</h3>
       <div class="slots-grid">
         {% for slot in slots %}
           <form method="POST" action="/">
