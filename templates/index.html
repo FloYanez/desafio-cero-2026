@@ -13,17 +13,12 @@
     </div>
 
     <div class="form-group">
-      <label>Tipo de atención</label>
-      <div class="type-selector">
-        <button class="type-btn" data-type="EVALUACION">
-          <span class="type-name">Evaluación</span>
-          <span class="type-duration">30 minutos</span>
-        </button>
-        <button class="type-btn" data-type="TRATAMIENTO">
-          <span class="type-name">Tratamiento</span>
-          <span class="type-duration">45 minutos</span>
-        </button>
-      </div>
+      <label for="type-select">Tipo de atención</label>
+      <select id="type-select">
+        <option value="">— Selecciona un tipo —</option>
+        <option value="EVALUACION">Evaluación (30 min)</option>
+        <option value="TRATAMIENTO">Tratamiento (45 min)</option>
+      </select>
     </div>
   </div>
 

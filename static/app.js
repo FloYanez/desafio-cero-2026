@@ -25,13 +25,16 @@ let pendingSlot = null;
 
 // ── Type selector ────────────────────────────────────────────────────────────
 
-document.querySelectorAll(".type-btn").forEach((btn) => {
-  btn.addEventListener("click", () => {
-    document.querySelectorAll(".type-btn").forEach((b) => b.classList.remove("active"));
-    btn.classList.add("active");
-    selectedType = btn.dataset.type;
-    fetchSlots();
-  });
+const typeSelect = document.getElementById("type-select");
+
+typeSelect.addEventListener("change", () => {
+  selectedType = typeSelect.value || null;
+  if (selectedType) fetchSlots();
+  else {
+    slotsSection.classList.add("hidden");
+    noSlots.classList.add("hidden");
+    loading.classList.add("hidden");
+  }
 });
 
 // ── Date picker ──────────────────────────────────────────────────────────────
