@@ -61,6 +61,7 @@ main {
   background: white;
   border-radius: 14px;
   padding: 2rem;
+  margin-top:  2rem;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
 }
 
@@ -165,14 +166,19 @@ select:focus {
   justify-content: flex-end;
 }
 
+/* ── Section divider ── */
+.section-divider {
+  border: none;
+  border-top: 1px solid #e2e8f0;
+  margin: 1.75rem 0;
+}
+
 /* ── Slots ── */
 .slots-title {
   font-size: 0.9375rem;
   font-weight: 600;
   color: #475569;
   margin-bottom: 1rem;
-  padding-bottom: 0.75rem;
-  border-bottom: 1px solid #f1f5f9;
 }
 
 .slots-grid {

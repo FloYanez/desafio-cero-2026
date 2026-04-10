@@ -6,6 +6,14 @@ from datetime import datetime, timedelta, time as time_t, date as date_t
 app = Flask(__name__)
 app.secret_key = "clave-secreta-dev"
 
+@app.template_filter("format_date")
+def format_date(iso_str):
+    d = date_t.fromisoformat(iso_str)
+    months = ["enero","febrero","marzo","abril","mayo","junio",
+              "julio","agosto","septiembre","octubre","noviembre","diciembre"]
+    days = ["lunes","martes","miércoles","jueves","viernes","sábado","domingo"]
+    return f"{days[d.weekday()]} {d.day} de {months[d.month - 1]} de {d.year}"
+
 PATIENT_ID = "12345678-9"
 
 DURATIONS = {
@@ -142,7 +150,9 @@ def index():
     if appt_type not in ("EVALUACION", "TRATAMIENTO"):
         appt_type = "EVALUACION"
 
-    slots = get_available_slots(target_date, appt_type)
+    # Solo calcular slots si el usuario envió el formulario explícitamente
+    submitted = "date" in request.args
+    slots = get_available_slots(target_date, appt_type) if submitted else None
 
     return render_template(
         "index.html",

@@ -16,16 +16,16 @@
   <form method="GET" action="/">
     <div class="form-row">
       <div class="form-group">
-        <label for="date-picker">Fecha</label>
-        <input type="date" id="date-picker" name="date" value="{{ date }}" />
-      </div>
-
-      <div class="form-group">
         <label for="type-select">Tipo de atención</label>
         <select id="type-select" name="type">
           <option value="EVALUACION" {% if appt_type == "EVALUACION" %}selected{% endif %}>Evaluación (30 min)</option>
           <option value="TRATAMIENTO" {% if appt_type == "TRATAMIENTO" %}selected{% endif %}>Tratamiento (45 min)</option>
         </select>
+      </div>
+
+      <div class="form-group">
+        <label for="date-picker">Fecha</label>
+        <input type="date" id="date-picker" name="date" value="{{ date }}" />
       </div>
 
       <div class="form-group form-group-submit">
@@ -36,8 +36,11 @@
   </form>
 
   {% if slots is not none %}
+    <hr class="section-divider" />
     {% if slots %}
-      <h3 class="slots-title">Horarios disponibles — {{ "Evaluación" if appt_type == "EVALUACION" else "Tratamiento" }}</h3>
+      <h3 class="slots-title">
+        Horarios disponibles — {{ "Evaluación" if appt_type == "EVALUACION" else "Tratamiento" }} — {{ date | format_date }}
+      </h3>
       <div class="slots-grid">
         {% for slot in slots %}
           <form method="POST" action="/">
