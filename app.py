@@ -1,9 +1,10 @@
-from flask import Flask, render_template, jsonify, request
+from flask import Flask, render_template, request, redirect, url_for, flash
 import json
 import os
 from datetime import datetime, timedelta, time as time_t, date as date_t
 
 app = Flask(__name__)
+app.secret_key = "clave-secreta-dev"
 
 PATIENT_ID = "12345678-9"
 
@@ -27,7 +28,6 @@ def load_appointments():
         raw = json.load(f)
     result = []
     for appt in raw:
-        # fromisoformat handles -03:00 offset; replace strips tz to treat as local time
         start = datetime.fromisoformat(appt["start"]).replace(tzinfo=None)
         end = datetime.fromisoformat(appt["end"]).replace(tzinfo=None)
         result.append({
@@ -93,79 +93,65 @@ def get_available_slots(target_date, appt_type):
     return slots
 
 
-@app.route("/")
+@app.route("/", methods=["GET", "POST"])
 def index():
     today = date_t.today().isoformat()
-    return render_template("index.html", patient_id=PATIENT_ID, today=today)
 
+    if request.method == "POST":
+        date_str = request.form.get("date", "")
+        time_str = request.form.get("time", "")
+        appt_type = request.form.get("type", "").upper()
 
-@app.route("/api/availability")
-def availability():
-    date_str = request.args.get("date", "")
-    appt_type = request.args.get("type", "").upper()
+        try:
+            target_date = date_t.fromisoformat(date_str)
+            start_time = datetime.strptime(time_str, "%H:%M").time()
+        except ValueError:
+            flash("Fecha u hora inválida.", "error")
+            return redirect(url_for("index", date=date_str, type=appt_type))
 
-    if not date_str or not appt_type:
-        return jsonify({"error": "Parámetros faltantes"}), 400
-    if appt_type not in ("EVALUACION", "TRATAMIENTO"):
-        return jsonify({"error": "Tipo inválido"}), 400
+        start_dt = datetime.combine(target_date, start_time)
+        end_dt = start_dt + timedelta(minutes=DURATIONS[appt_type])
+
+        available = get_available_slots(target_date, appt_type)
+        if time_str not in [s["start"] for s in available]:
+            flash("Ese bloque ya no está disponible.", "error")
+            return redirect(url_for("index", date=date_str, type=appt_type))
+
+        appointments = load_appointments()
+        appointments.append({
+            "start": start_dt,
+            "end": end_dt,
+            "type": appt_type,
+            "patient_id": PATIENT_ID,
+        })
+        save_appointments(appointments)
+
+        flash(f"¡Cita agendada para el {target_date.strftime('%d/%m/%Y')} a las {time_str}!", "success")
+        return redirect(url_for("index", date=date_str, type=appt_type))
+
+    # GET
+    date_str = request.args.get("date", today)
+    appt_type = request.args.get("type", "EVALUACION").upper()
 
     try:
         target_date = date_t.fromisoformat(date_str)
     except ValueError:
-        return jsonify({"error": "Fecha inválida"}), 400
+        target_date = date_t.today()
+        date_str = today
+
+    if appt_type not in ("EVALUACION", "TRATAMIENTO"):
+        appt_type = "EVALUACION"
 
     slots = get_available_slots(target_date, appt_type)
-    return jsonify(slots)
 
-
-@app.route("/api/appointments", methods=["POST"])
-def book_appointment():
-    body = request.get_json(silent=True)
-    if not body:
-        return jsonify({"error": "JSON inválido"}), 400
-
-    date_str = body.get("date", "")
-    time_str = body.get("time", "")
-    appt_type = body.get("type", "").upper()
-
-    if not all([date_str, time_str, appt_type]):
-        return jsonify({"error": "Parámetros faltantes"}), 400
-    if appt_type not in ("EVALUACION", "TRATAMIENTO"):
-        return jsonify({"error": "Tipo inválido"}), 400
-
-    try:
-        target_date = date_t.fromisoformat(date_str)
-        start_time = datetime.strptime(time_str, "%H:%M").time()
-    except ValueError:
-        return jsonify({"error": "Fecha u hora inválida"}), 400
-
-    start_dt = datetime.combine(target_date, start_time)
-    end_dt = start_dt + timedelta(minutes=DURATIONS[appt_type])
-
-    # Verify the slot is still available (guards against race conditions)
-    available = get_available_slots(target_date, appt_type)
-    if time_str not in [s["start"] for s in available]:
-        return jsonify({"error": "El bloque ya no está disponible"}), 409
-
-    appointments = load_appointments()
-    appointments.append({
-        "start": start_dt,
-        "end": end_dt,
-        "type": appt_type,
-        "patient_id": PATIENT_ID,
-    })
-    save_appointments(appointments)
-
-    return jsonify({
-        "success": True,
-        "message": "¡Cita agendada exitosamente!",
-        "appointment": {
-            "date": target_date.strftime("%d/%m/%Y"),
-            "start": time_str,
-            "end": end_dt.strftime("%H:%M"),
-            "type": appt_type,
-        },
-    }), 201
+    return render_template(
+        "index.html",
+        patient_id=PATIENT_ID,
+        today=today,
+        date=date_str,
+        appt_type=appt_type,
+        slots=slots,
+    )
 
 
 if __name__ == "__main__":

@@ -3,72 +3,58 @@
 {% block title %}Agendar Cita — Clínica Dental{% endblock %}
 
 {% block content %}
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% for category, message in messages %}
+    <div class="alert alert-{{ category }}">{{ message }}</div>
+  {% endfor %}
+{% endwith %}
+
 <section class="booking-card">
   <h2 class="booking-title">Agendar una cita</h2>
 
-  <div class="form-row">
-    <div class="form-group">
-      <label for="date-picker">Fecha</label>
-      <input type="date" id="date-picker" value="{{ today }}" />
+  <form method="GET" action="/">
+    <div class="form-row">
+      <div class="form-group">
+        <label for="date-picker">Fecha</label>
+        <input type="date" id="date-picker" name="date" value="{{ date }}" />
+      </div>
+
+      <div class="form-group">
+        <label for="type-select">Tipo de atención</label>
+        <select id="type-select" name="type">
+          <option value="EVALUACION" {% if appt_type == "EVALUACION" %}selected{% endif %}>Evaluación (30 min)</option>
+          <option value="TRATAMIENTO" {% if appt_type == "TRATAMIENTO" %}selected{% endif %}>Tratamiento (45 min)</option>
+        </select>
+      </div>
+
+      <div class="form-group form-group-submit">
+        <label>&nbsp;</label>
+        <button type="submit" class="btn btn-primary">Ver disponibilidad</button>
+      </div>
     </div>
+  </form>
 
-    <div class="form-group">
-      <label for="type-select">Tipo de atención</label>
-      <select id="type-select">
-        <option value="EVALUACION" selected>Evaluación (30 min)</option>
-        <option value="TRATAMIENTO">Tratamiento (45 min)</option>
-      </select>
-    </div>
-  </div>
+  {% if slots is not none %}
+    {% if slots %}
+      <h3 class="slots-title">Horarios disponibles</h3>
+      <div class="slots-grid">
+        {% for slot in slots %}
+          <form method="POST" action="/">
+            <input type="hidden" name="date" value="{{ date }}" />
+            <input type="hidden" name="time" value="{{ slot.start }}" />
+            <input type="hidden" name="type" value="{{ appt_type }}" />
+            <button type="submit" class="slot-card">
+              <span class="slot-time">{{ slot.start }}</span>
+              <span class="slot-end-time">hasta {{ slot.end }}</span>
+            </button>
+          </form>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="state-msg">No hay bloques disponibles para esta fecha.</p>
+    {% endif %}
+  {% endif %}
 
-  <div id="loading" class="state-msg hidden">Cargando disponibilidad…</div>
-  <div id="no-slots" class="state-msg hidden">No hay bloques disponibles para esta fecha.</div>
-
-  <div id="slots-section" class="hidden">
-    <h3 id="slots-title" class="slots-title"></h3>
-    <div id="slots-grid" class="slots-grid"></div>
-  </div>
 </section>
-
-<!-- Modal de confirmación -->
-<div id="modal-overlay" class="modal-overlay hidden" role="dialog" aria-modal="true">
-  <div class="modal">
-    <h3 class="modal-heading">Confirmar cita</h3>
-    <dl class="modal-detail">
-      <div class="detail-row">
-        <dt>Tipo</dt>
-        <dd id="modal-type"></dd>
-      </div>
-      <div class="detail-row">
-        <dt>Fecha</dt>
-        <dd id="modal-date"></dd>
-      </div>
-      <div class="detail-row">
-        <dt>Horario</dt>
-        <dd id="modal-time"></dd>
-      </div>
-      <div class="detail-row">
-        <dt>Paciente</dt>
-        <dd>{{ patient_id }}</dd>
-      </div>
-    </dl>
-    <div class="modal-actions">
-      <button id="modal-cancel" class="btn btn-secondary">Cancelar</button>
-      <button id="modal-confirm" class="btn btn-primary">Confirmar</button>
-    </div>
-  </div>
-</div>
-
-<!-- Toast de notificación -->
-<div id="toast" class="toast hidden" role="status" aria-live="polite">
-  <span id="toast-message"></span>
-</div>
-{% endblock %}
-
-{% block scripts %}
-<script>
-  const TODAY = "{{ today }}";
-  const PATIENT_ID = "{{ patient_id }}";
-</script>
-<script src="{{ url_for('static', filename='app.js') }}"></script>
 {% endblock %}
