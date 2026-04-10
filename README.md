@@ -41,3 +41,4 @@ Ir a [http://localhost:5000/?date=2026-01-28&type=EVALUACION](http://localhost:5
 - Se usa un rut hardcodeado para identificar al paciente pero de momento no tiene uso. Una implementación real requeriría más información pero no necesariamente autenticación.
 - Haber usado React para el frontend en lugar de Jinja2 habría permitido hacer facilmente tests de la app ya que sería una API REST pura, pero dada la escala del proyecto es mas sencillo usar Jinja2.
 - Debido a la agilidad de trabajar con Claude Code se decidió implementar el backoffice de manera simple. De momento no requiere autenticación pero en una implementación real requeriría autenticación.
+- El botón que lleva al backoffice en la barra de navegación es solo para propósito de este ejercicio.
