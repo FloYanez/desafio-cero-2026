@@ -13,7 +13,12 @@
         <span class="header-icon">🦷</span>
         <span class="header-title">Clínica Dental</span>
       </div>
-      <p class="patient-info">Paciente: <strong>{{ patient_id }}</strong></p>
+      <nav class="header-nav">
+        {% if patient_id is defined %}
+          <span class="patient-info">Paciente: <strong>{{ patient_id }}</strong></span>
+        {% endif %}
+        <a href="{{ url_for('backoffice') }}" class="nav-link {% if request.endpoint == 'backoffice' %}nav-link-active{% endif %}">Backoffice</a>
+      </nav>
     </div>
   </header>
 

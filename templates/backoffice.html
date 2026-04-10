@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}Backoffice — Clínica Dental{% endblock %}
+
+{% block content %}
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% for category, message in messages %}
+    <div class="alert alert-{{ category }}">{{ message }}</div>
+  {% endfor %}
+{% endwith %}
+
+<section class="booking-card">
+  <h2 class="booking-title">Agendar urgencia</h2>
+
+  <form method="GET" action="/backoffice">
+    <div class="form-row">
+      <div class="form-group">
+        <label for="patient-input">RUT del paciente</label>
+        <input type="text" id="patient-input" name="patient_id" value="{{ patient_id }}" placeholder="12345678-9" />
+      </div>
+
+      <div class="form-group">
+        <label for="date-picker">Fecha</label>
+        <input type="date" id="date-picker" name="date" value="{{ date }}" />
+      </div>
+
+      <div class="form-group form-group-submit">
+        <label>&nbsp;</label>
+        <button type="submit" class="btn btn-primary">Ver disponibilidad</button>
+      </div>
+    </div>
+  </form>
+
+  {% if slots is not none %}
+    <hr class="section-divider" />
+    {% if slots %}
+      <h3 class="slots-title">Horarios disponibles — Urgencia (90 min) — {{ date | format_date }}</h3>
+      <div class="slots-grid">
+        {% for slot in slots %}
+          <form method="POST" action="/backoffice">
+            <input type="hidden" name="date" value="{{ date }}" />
+            <input type="hidden" name="time" value="{{ slot.start }}" />
+            <input type="hidden" name="patient_id" value="{{ patient_id }}" />
+            <button type="submit" class="slot-card slot-card-urgencia">
+              <span class="slot-time">{{ slot.start }}</span>
+              <span class="slot-end-time">hasta {{ slot.end }}</span>
+            </button>
+          </form>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="state-msg">No hay bloques disponibles para esta fecha.</p>
+    {% endif %}
+  {% endif %}
+
+</section>
+{% endblock %}

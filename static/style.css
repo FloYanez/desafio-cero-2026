@@ -51,6 +51,31 @@ header {
   opacity: 0.85;
 }
 
+.header-nav {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.nav-link {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.8);
+  text-decoration: none;
+  padding: 0.25rem 0.625rem;
+  border-radius: 6px;
+  transition: background 0.15s;
+}
+
+.nav-link:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+}
+
+.nav-link-active {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
 /* ── Main ── */
 main {
   padding: 2rem 1rem;
@@ -95,6 +120,7 @@ main {
   color: #64748b;
 }
 
+input[type="text"],
 input[type="date"] {
   padding: 0.625rem 0.875rem;
   border: 1.5px solid #e2e8f0;
@@ -106,6 +132,7 @@ input[type="date"] {
   transition: border-color 0.15s, box-shadow 0.15s;
 }
 
+input[type="text"]:focus,
 input[type="date"]:focus {
   outline: none;
   border-color: #2563eb;
@@ -129,6 +156,24 @@ select:focus {
   outline: none;
   border-color: #2563eb;
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.slot-card-urgencia {
+  border-color: #fca5a5;
+  background: #fff5f5;
+}
+
+.slot-card-urgencia .slot-time {
+  color: #991b1b;
+}
+
+.slot-card-urgencia .slot-end-time {
+  color: #f87171;
+}
+
+.slot-card-urgencia:hover {
+  background: #dc2626;
+  border-color: #dc2626;
 }
 
 /* ── State messages ── */

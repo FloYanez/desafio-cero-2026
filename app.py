@@ -164,5 +164,67 @@ def index():
     )
 
 
+@app.route("/backoffice", methods=["GET", "POST"])
+def backoffice():
+    today = date_t.today().isoformat()
+
+    if request.method == "POST":
+        date_str = request.form.get("date", "")
+        time_str = request.form.get("time", "")
+        patient_id = request.form.get("patient_id", "").strip()
+
+        if not patient_id:
+            flash("El RUT del paciente es obligatorio.", "error")
+            return redirect(url_for("backoffice", date=date_str, patient_id=patient_id))
+
+        try:
+            target_date = date_t.fromisoformat(date_str)
+            start_time = datetime.strptime(time_str, "%H:%M").time()
+        except ValueError:
+            flash("Fecha u hora inválida.", "error")
+            return redirect(url_for("backoffice", date=date_str, patient_id=patient_id))
+
+        start_dt = datetime.combine(target_date, start_time)
+        end_dt = start_dt + timedelta(minutes=DURATIONS["URGENCIA"])
+
+        available = get_available_slots(target_date, "URGENCIA")
+        if time_str not in [s["start"] for s in available]:
+            flash("Ese bloque ya no está disponible.", "error")
+            return redirect(url_for("backoffice", date=date_str, patient_id=patient_id))
+
+        appointments = load_appointments()
+        appointments.append({
+            "start": start_dt,
+            "end": end_dt,
+            "type": "URGENCIA",
+            "patient_id": patient_id,
+        })
+        save_appointments(appointments)
+
+        flash(f"Urgencia agendada para {patient_id} el {target_date.strftime('%d/%m/%Y')} a las {time_str}.", "success")
+        return redirect(url_for("backoffice", date=date_str))
+
+    # GET
+    date_str = request.args.get("date", today)
+    patient_id = request.args.get("patient_id", "")
+
+    try:
+        target_date = date_t.fromisoformat(date_str)
+    except ValueError:
+        target_date = date_t.today()
+        date_str = today
+
+    submitted = "date" in request.args
+    slots = get_available_slots(target_date, "URGENCIA") if submitted else None
+
+    return render_template(
+        "backoffice.html",
+        today=today,
+        date=date_str,
+        patient_id=patient_id,
+        slots=slots,
+    )
+
+
 if __name__ == "__main__":
     app.run(debug=True)
