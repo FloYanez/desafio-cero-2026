@@ -20,12 +20,12 @@ const TYPE_LABELS = {
   TRATAMIENTO: "Tratamiento",
 };
 
-let selectedType = null;
+const typeSelect = document.getElementById("type-select");
+
+let selectedType = typeSelect.value;
 let pendingSlot = null;
 
 // ── Type selector ────────────────────────────────────────────────────────────
-
-const typeSelect = document.getElementById("type-select");
 
 typeSelect.addEventListener("change", () => {
   selectedType = typeSelect.value || null;
@@ -42,6 +42,10 @@ typeSelect.addEventListener("change", () => {
 datePicker.addEventListener("change", () => {
   if (selectedType) fetchSlots();
 });
+
+// ── Carga inicial ────────────────────────────────────────────────────────────
+
+fetchSlots();
 
 // ── Fetch availability ───────────────────────────────────────────────────────
 
