@@ -142,6 +142,7 @@ select:focus {
 .alert {
   padding: 0.875rem 1.25rem;
   border-radius: 8px;
+  margin-top: 1.5rem;
   margin-bottom: 1rem;
   font-weight: 500;
   font-size: 0.9375rem;
